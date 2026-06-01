@@ -2,7 +2,7 @@
 	import { ref, onMounted } from "vue"
 	import { github } from "@/lib/api.ts"
 	import { quiz } from "@/lib/interfaces.ts"
-
+	import fuse from "@/lib/fuse.ts"
 	import Box from "@/components/box.vue"
 
 	const lists = ref<quiz[]>([])
@@ -10,7 +10,11 @@
 	const numbers = ref<number[]>([])
 	const number = ref(0)
 	const score = ref(0)
-	const letters: String[] = Array.from("abcdefghijklmnopqrstuvwxyz0123456789:-".toUpperCase())
+	
+	const letters: String[] = Array.from("abcdefghijklmnopqrstuvwxyz".toUpperCase())
+	const digits: String[] = Array.from("0123456789")
+	const specials: String[] = Array.from(":-")
+
 	const answer = ref<String[]>([])
 	
 	onMounted(async () => {
@@ -32,7 +36,9 @@
 	function submit(){
 		const current = lists.value[numbers.value[number.value]]
 		const ans = answer.value.join("")
-		if(current?.answers.includes(ans)){
+		const x = fuse(current, ans)
+		console.log(x)
+		if(x){
 			score.value++
 		}
 		clear()
@@ -72,6 +78,7 @@
 
       <div class="bg-white rounde shadow-lg p-2">
         <div class="flex flex-wrap justify-center items-center gap-2 min-h-[60px]">
+          {{ score }}
           <div
   					v-for="(letter, index) in answer"
   					:key="index"
@@ -93,6 +100,19 @@
       >
         <Box
           v-for="(char_, index) in letters"
+          :key="index"
+          :text="char_"
+          @click="appendKey(char_)"
+        />
+        <Box
+        	v-if="!lists[numbers[number]]?.nonum"
+          v-for="(char_, index) in digits"
+          :key="index"
+          :text="char_"
+          @click="appendKey(char_)"
+        />
+        <Box
+          v-for="(char_, index) in specials"
           :key="index"
           :text="char_"
           @click="appendKey(char_)"

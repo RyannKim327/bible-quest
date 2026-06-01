@@ -1,16 +1,20 @@
 {
-  "name": "bible-quiz-vue",
+  "name": "bible-quiz",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist -b vue-deploy"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.0",
     "axios": "^1.16.1",
+    "fuse.js": "^7.4.0",
+    "gh-pages": "^6.3.0",
     "tailwindcss": "^4.3.0",
     "vue": "^3.5.34"
   },
