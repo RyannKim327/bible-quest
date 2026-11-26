@@ -31,23 +31,6 @@ var GuessTheMistakeCheck = constellation.Endpoint{
 	},
 }
 
-type difficulty = bible_lib.Difficulty
-
-const (
-	difficultyEasy   = bible_lib.Easy
-	difficultyMedium = bible_lib.Medium
-	difficultyHard   = bible_lib.Hard
-)
-
-func parseDifficulty(value string) (difficulty, bool) {
-	switch difficulty(value) {
-	case difficultyEasy, difficultyMedium, difficultyHard:
-		return difficulty(value), true
-	default:
-		return "", false
-	}
-}
-
 type wordFix struct {
 	Given      string
 	Correction string
@@ -199,10 +182,6 @@ var roundsByDifficulty = map[difficulty][]gameRound{
 	difficultyHard:   buildRounds(difficultyHard),
 }
 
-func roundKey(level difficulty, id string) string {
-	return string(level) + "/" + id
-}
-
 var roundsByID = func() map[string]gameRound {
 	index := make(map[string]gameRound)
 	for level, set := range roundsByDifficulty {
@@ -292,6 +271,7 @@ func guessTheMistakePassage(r *constellation.Request, w constellation.Response) 
 		"reference":  round.Reference,
 		"version":    round.Version,
 		"words":      round.Words,
+		"character":  nextCharacter(round.Difficulty),
 	})
 }
 

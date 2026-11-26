@@ -22,8 +22,14 @@ func main() {
 
 	constellation.AddEndpoint(web.Index)
 	constellation.AddEndpoint(web.GuessTheMistake)
+	constellation.AddEndpoint(web.Quiz)
+	constellation.AddEndpoint(web.OneWord)
 	constellation.AddEndpoint(api.GuessTheMistakePassage)
 	constellation.AddEndpoint(api.GuessTheMistakeCheck)
+	constellation.AddEndpoint(api.QuizRound)
+	constellation.AddEndpoint(api.QuizCheck)
+	constellation.AddEndpoint(api.OneWordRound)
+	constellation.AddEndpoint(api.OneWordCheck)
 
 	css, err := StaticFS.ReadFile("static/styles.css")
 	if err != nil {

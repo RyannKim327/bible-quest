@@ -16,7 +16,7 @@ func setTestPassages(t *testing.T, passages []bible_lib.Passage) {
 	})
 }
 
-func TestPassageTextsAreEmpty(t *testing.T) {
+func TestPassageTextsArePresent(t *testing.T) {
 	wantVersions := map[bible_lib.Difficulty]string{
 		bible_lib.Easy:   "NIV",
 		bible_lib.Medium: "NLT",
@@ -35,8 +35,8 @@ func TestPassageTextsAreEmpty(t *testing.T) {
 				t.Errorf("%s: missing %s text", passage.ID, level)
 				continue
 			}
-			if text != "" {
-				t.Errorf("%s: %s text = %q, want empty", passage.ID, level, text)
+			if text == "" {
+				t.Errorf("%s: %s text is empty, want passage text", passage.ID, level)
 			}
 		}
 	}

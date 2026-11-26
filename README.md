@@ -1,7 +1,11 @@
 # Bible Quest
 
 Bible Quest is a small Go web app for a pixel-style Bible adventure site.
-It includes a landing page and a **Guess the Mistake** game where players choose a difficulty, read a Bible passage, and select the words that have been changed.
+It includes a landing page and three games with difficulty levels:
+
+- **Bible Quiz** — answer a multiple-choice question.
+- **One Word** — identify the Bible character or book behind a single word.
+- **Guess the Mistake** — find the changed words in a Bible passage.
 
 It is built on [Constellation](https://github.com/RyannKim327/constellation), a Go framework for web applications.
 The framework code is included under `lib/`, and the app has no third-party Go module dependencies.
@@ -10,14 +14,18 @@ Tailwind CSS is loaded from a CDN at runtime by the page template.
 
 ## Features
 
-- Server-rendered landing page and game page
-- Three difficulty levels with different Bible translations:
+- Server-rendered landing page with links to all three games
+- Three difficulty levels shared by every game: easy, medium, and hard
+- A randomized Bible character guide in every game whose side notes point back to the verse
+- Bible Quiz with four randomly ordered choices, answer review, and the Bible reference after each question
+- One Word clues that ask for a character or a book, with case-insensitive answers and aliases
+- Guess the Mistake with translations that change by difficulty:
   - Easy — NIV
   - Medium — NLT
   - Hard — KJV
-- Shuffled passage deck that avoids repeating a round back-to-back
+- Shuffled decks that avoid repeating a round back-to-back
 - Multi-word mistake detection and phrase corrections
-- Immediate feedback, scoring, and answer review in the browser
+- Immediate feedback and scoring in the browser
 - Custom 404 and 403 pages
 - Built-in development server with hot reload
 
@@ -73,13 +81,43 @@ go vet ./...
 | Method | Path | Description |
 | --- | --- | --- |
 | `GET` | `/` | Landing page |
-| `GET` | `/guess-the-mistake` | Game page |
+| `GET` | `/quiz` | Bible Quiz page |
+| `GET` | `/one-word` | One Word page |
+| `GET` | `/guess-the-mistake` | Guess the Mistake page |
+| `GET` | `/api/quiz?difficulty=easy` | Get a quiz question |
+| `POST` | `/api/quiz` | Check a quiz answer |
+| `GET` | `/api/one-word?difficulty=easy` | Get a One Word clue |
+| `POST` | `/api/one-word` | Check a One Word answer |
 | `GET` | `/api/guess-the-mistake?difficulty=easy` | Get a passage round |
 | `POST` | `/api/guess-the-mistake` | Check a submitted answer |
 
-The GET endpoint accepts `difficulty` values `easy`, `medium`, or `hard`, and returns the round ID, reference, translation, and word list.
+Every GET endpoint accepts `difficulty` values `easy`, `medium`, or `hard` and returns an opaque round `id`. POST endpoints use that ID so the difficulty cannot be forged by the client.
 
-The POST endpoint accepts JSON like:
+Each GET response also includes a `character` with a `key`, `name`, `role`, and `verse`. The games use it to show a randomized guide on the side and to deliver the answer note as if the character were speaking.
+
+Quiz choices are shuffled on the server for every question. POST body:
+
+```json
+{
+  "id": "easy/ark-builder",
+  "answer": "Noah"
+}
+```
+
+`answer` is the text of the selected choice, compared case-insensitively. The response reports whether the answer was correct, the right answer text, and the Bible reference.
+
+One Word POST body:
+
+```json
+{
+  "id": "easy/ark-noah",
+  "answer": "Noah"
+}
+```
+
+Answers are case-insensitive. The response reports correctness, the expected answer, its kind, and the Bible reference.
+
+Guess the Mistake POST body:
 
 ```json
 {
@@ -95,10 +133,14 @@ The POST endpoint accepts JSON like:
 ```text
 main.go                     Registers routes and embeds static assets
 lib/                        Constellation web framework and dev hot-reload server
-src/api/                    Guess the Mistake API and round/scoring logic
+src/api/                    Game APIs, round building, difficulty helpers, and decks
 src/lib/passage.go          Passage texts, translations, and deliberate mistakes
+src/lib/characters.go       Bible character guide pools by difficulty
+src/lib/quiz.go             Quiz questions and choices
+src/lib/one_word.go         One Word clues and answers
 src/web/                    Page endpoints
-src/web/components/         Server-rendered UI components and browser game script
+src/web/components/         Server-rendered UI components and browser game scripts
+src/web/components/character.go  Shared character guide markup and sprite templates
 static/                     Embedded CSS and logo
 ```
 

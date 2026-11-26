@@ -12,7 +12,13 @@ const guessScript = `(function () {
   var difficultyButtons = document.querySelectorAll('[data-difficulty]');
   var changeDifficulty = document.getElementById('change-difficulty');
   var passage = document.getElementById('passage');
-  if (!passage || !difficultyPanel || !gameArea || !changeDifficulty) return;
+  var guideBubble = document.getElementById('guess-guide-bubble');
+  var guideSprite = document.getElementById('guess-guide-sprite');
+  var guideName = document.getElementById('guess-guide-name');
+  var guideRole = document.getElementById('guess-guide-role');
+  var guideNote = document.getElementById('guess-guide-note');
+  var guideTemplates = document.querySelectorAll('#guess-character-templates template');
+  if (!passage || !difficultyPanel || !gameArea || !changeDifficulty || !guideBubble || !guideSprite || !guideName || !guideRole || !guideNote) return;
 
   var roundValue = document.getElementById('round-value');
   var scoreValue = document.getElementById('score-value');
@@ -29,9 +35,50 @@ const guessScript = `(function () {
   var locked = true;
   var difficulty = '';
 
+  function bindTap(element, handler) {
+    var startX = 0;
+    var startY = 0;
+    var touched = false;
+    element.addEventListener('touchstart', function (event) {
+      startX = event.touches[0].clientX;
+      startY = event.touches[0].clientY;
+    }, { passive: true });
+    element.addEventListener('touchend', function (event) {
+      var touch = event.changedTouches[0];
+      if (touched || Math.abs(touch.clientX - startX) > 10 || Math.abs(touch.clientY - startY) > 10) return;
+      touched = true;
+      handler(event);
+      window.setTimeout(function () { touched = false; }, 700);
+    }, { passive: true });
+    element.addEventListener('click', function (event) {
+      if (touched) return;
+      handler(event);
+    });
+  }
+
   function setFeedback(message, state) {
     feedback.textContent = message;
     feedback.className = 'feedback' + (state ? ' ' + state : '');
+  }
+
+  function popGuide() {
+    guideBubble.classList.remove('is-popping');
+    void guideBubble.offsetWidth;
+    guideBubble.classList.add('is-popping');
+  }
+
+  function setGuide(character, note) {
+    if (!character) return;
+    guideSprite.innerHTML = '';
+    guideTemplates.forEach(function (template) {
+      if (template.getAttribute('data-character-key') === character.key) {
+        guideSprite.appendChild(template.content.cloneNode(true));
+      }
+    });
+    guideName.textContent = character.name;
+    guideRole.textContent = character.role;
+    guideNote.textContent = note || character.verse;
+    popGuide();
   }
 
   function loadRound() {
@@ -47,6 +94,10 @@ const guessScript = `(function () {
     passage.innerHTML = '';
     passage.classList.remove('is-locked');
     reference.textContent = 'Loading passage...';
+    guideSprite.innerHTML = '';
+    guideName.textContent = 'Your guide';
+    guideRole.textContent = '';
+    guideNote.textContent = 'Finding a guide for this round...';
     setFeedback('Fetching a passage from the archive...');
 
     fetch('/api/guess-the-mistake?difficulty=' + encodeURIComponent(difficulty), { cache: 'no-store' })
@@ -59,6 +110,7 @@ const guessScript = `(function () {
         round += 1;
         roundValue.textContent = String(round).padStart(2, '0');
         reference.textContent = (data.reference || 'Unknown passage') + (data.version ? ' · ' + data.version : '');
+        setGuide(data.character, data.character ? data.character.verse : '');
 
         data.words.forEach(function (word, index) {
           var button = document.createElement('button');
@@ -67,7 +119,7 @@ const guessScript = `(function () {
           button.textContent = word;
           button.setAttribute('data-index', String(index));
           button.setAttribute('aria-pressed', 'false');
-          button.addEventListener('click', function () {
+          bindTap(button, function () {
             toggleWord(index, button);
           });
           passage.appendChild(button);
@@ -138,6 +190,12 @@ const guessScript = `(function () {
           }
         });
 
+        if (current.character) {
+          var corrections = (result.fixes || []).map(function (fix) {
+            return '“' + fix.given + '” → “' + fix.correction + '”';
+          }).join(', ');
+          setGuide(current.character, current.character.name + ' says: “' + (corrections || 'This passage was already right.') + ' — ' + current.reference + '.”');
+        }
         nextRound.hidden = false;
       })
       .catch(function () {
@@ -146,7 +204,7 @@ const guessScript = `(function () {
       });
   }
 
-  submitWord.addEventListener('click', function () {
+  bindTap(submitWord, function () {
     if (selected.length === 0) {
       setFeedback('Pick at least one word first.', 'is-wrong');
       return;
@@ -154,7 +212,7 @@ const guessScript = `(function () {
     checkAnswer(selected.slice());
   });
 
-  submitNone.addEventListener('click', function () {
+  bindTap(submitNone, function () {
     checkAnswer([]);
   });
 
@@ -186,13 +244,13 @@ const guessScript = `(function () {
   }
 
   difficultyButtons.forEach(function (button) {
-    button.addEventListener('click', function () {
+    bindTap(button, function () {
       startGame(button.getAttribute('data-difficulty'));
     });
   });
 
-  nextRound.addEventListener('click', loadRound);
-  changeDifficulty.addEventListener('click', showDifficulty);
+  bindTap(nextRound, loadRound);
+  bindTap(changeDifficulty, showDifficulty);
 })();`
 
 func guessDifficultyButtons() []any {
@@ -337,11 +395,7 @@ func GuessTheMistake() string {
 										}),
 										elements.Aside(constellation.WebComponent{
 											Class: "guess-guide",
-											Children: []any{
-												elements.Div(constellation.WebComponent{
-													Class:    "guide-sprite",
-													Children: []any{CharacterSprite("paul", "sprite sprite-guide")},
-												}),
+											Children: append(characterGuideIntro("guess"),
 												elements.H3(constellation.WebComponent{Class: "guide-title", Text: "How to play"}),
 												elements.Ol(constellation.WebComponent{
 													Class: "guide-list",
@@ -353,7 +407,7 @@ func GuessTheMistake() string {
 														elements.Li(constellation.WebComponent{Text: "Choose Missing word or No mistake."}),
 													},
 												}),
-											},
+											),
 										}),
 									},
 								}),

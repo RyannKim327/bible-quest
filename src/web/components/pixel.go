@@ -202,6 +202,16 @@ func CharacterSprite(key, class string) string {
 	return ""
 }
 
+func PixelBird(class string) string {
+	rows := []string{
+		"..b...b..",
+		".bbb.bbb.",
+		"..bbbbb..",
+		"...bbb...",
+	}
+	return pixelSVG(rows, map[rune]string{'b': "#2b2118"}, class)
+}
+
 func PixelCross(class string) string {
 	rows := []string{
 		"....gg....",

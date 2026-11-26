@@ -18,6 +18,7 @@ func index(_ *constellation.Request) string {
 		web_components.Header(),
 		web_components.Hero(),
 		web_components.Quests(),
+		web_components.Games(),
 		web_components.Characters(),
 		web_components.HowItWorks(),
 		web_components.Footer(),

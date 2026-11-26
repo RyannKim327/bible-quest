@@ -27,14 +27,14 @@ func Header() string {
 				Class: "site-nav",
 				Children: []any{
 					elements.A(constellation.WebComponent{Class: "nav-link", Attributes: map[string]string{"href": "#quests"}, Text: "Quests"}),
+					elements.A(constellation.WebComponent{Class: "nav-link", Attributes: map[string]string{"href": "#games"}, Text: "Games"}),
 					elements.A(constellation.WebComponent{Class: "nav-link", Attributes: map[string]string{"href": "#characters"}, Text: "Characters"}),
-					elements.A(constellation.WebComponent{Class: "nav-link", Attributes: map[string]string{"href": "/guess-the-mistake"}, Text: "Guess the mistake"}),
 					elements.A(constellation.WebComponent{Class: "nav-link", Attributes: map[string]string{"href": "#how-it-works"}, Text: "How it works"}),
 				},
 			}),
 			elements.A(constellation.WebComponent{
 				Class:      "pixel-button header-cta",
-				Attributes: map[string]string{"href": "/guess-the-mistake"},
+				Attributes: map[string]string{"href": "#games"},
 				Text:       "Play now",
 			}),
 		},

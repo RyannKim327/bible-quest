@@ -323,6 +323,70 @@ a {
   transform: translateY(-8px);
 }
 
+.pixel-bird {
+  position: absolute;
+  top: var(--bird-top);
+  left: var(--bird-from);
+  z-index: 1;
+  pointer-events: none;
+  animation: bird-flight var(--bird-duration) linear var(--bird-delay) infinite;
+}
+
+.bird-sprite {
+  width: 34px;
+  animation: bird-flap 0.5s steps(2, end) infinite;
+}
+
+@keyframes bird-flight {
+  0% {
+    left: var(--bird-from);
+    transform: translateY(0) scale(var(--bird-scale)) scaleX(var(--bird-face));
+  }
+  50% {
+    transform: translateY(var(--bird-bob)) scale(var(--bird-scale)) scaleX(var(--bird-face));
+  }
+  100% {
+    left: var(--bird-to);
+    transform: translateY(0) scale(var(--bird-scale)) scaleX(var(--bird-face));
+  }
+}
+
+@keyframes bird-flap {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(0.65);
+  }
+}
+
+.party-member .sprite {
+  animation: sprite-bob 2.6s steps(2, end) infinite;
+}
+
+.member-left .sprite {
+  animation-delay: -0.8s;
+}
+
+.member-center .sprite {
+  animation-delay: -1.4s;
+}
+
+.member-right .sprite {
+  animation-delay: -2s;
+}
+
+@keyframes sprite-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
 .sprite {
   display: block;
   height: auto;
@@ -610,7 +674,8 @@ a {
   color: var(--red);
 }
 
-.guess-page {
+.guess-page,
+.game-page {
   max-width: 1180px;
   margin: 0 auto;
   padding: 2rem 1.5rem 5rem;
@@ -691,7 +756,8 @@ a {
   font-size: 0.55rem;
 }
 
-.guess-layout {
+.guess-layout,
+.game-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.7fr) minmax(260px, 0.8fr);
   align-items: start;
@@ -699,7 +765,8 @@ a {
   margin-top: 2.5rem;
 }
 
-.guess-board {
+.guess-board,
+.game-board {
   padding: 2rem;
   background: var(--paper);
   border: 4px solid var(--ink);
@@ -795,13 +862,15 @@ a {
   box-shadow: 3px 3px 0 var(--ink);
 }
 
-.guess-actions {
+.guess-actions,
+.game-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
 }
 
-.guess-actions .pixel-button {
+.guess-actions .pixel-button,
+.game-actions .pixel-button {
   flex: 1 1 190px;
 }
 
@@ -828,25 +897,117 @@ a {
   margin-top: 1.5rem;
 }
 
-.guess-guide {
+.guess-guide,
+.game-guide {
   padding: 1.5rem;
   background: #fff8e8;
   border: 3px solid var(--ink);
   box-shadow: 6px 6px 0 var(--ink);
 }
 
+.guide-scene {
+  position: relative;
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  align-items: end;
+  gap: 0.75rem;
+  min-height: 190px;
+  margin-bottom: 1.25rem;
+}
+
 .guide-sprite {
+  position: relative;
+  z-index: 2;
   display: grid;
   place-items: end center;
-  min-height: 160px;
-  margin-bottom: 1.25rem;
+  width: 96px;
+  height: 144px;
   background-color: var(--blue);
   background-image: linear-gradient(rgba(255, 253, 246, 0.78), rgba(255, 253, 246, 0.78));
   border: 3px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
 }
 
 .sprite-guide {
-  width: 96px;
+  width: 82px;
+}
+
+.guide-bubble {
+  position: relative;
+  margin-bottom: 40px;
+  padding: 0.85rem 0.9rem;
+  background: #fff;
+  border: 3px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+.guide-bubble::before,
+.guide-bubble::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-right-style: solid;
+}
+
+.guide-bubble::before {
+  bottom: 16px;
+  left: -16px;
+  border-top-width: 11px;
+  border-bottom-width: 11px;
+  border-right-width: 16px;
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+  border-right-color: var(--ink);
+}
+
+.guide-bubble::after {
+  bottom: 18px;
+  left: -12px;
+  border-top-width: 9px;
+  border-bottom-width: 9px;
+  border-right-width: 13px;
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+  border-right-color: #fff;
+}
+
+.guide-bubble.is-popping {
+  animation: guide-pop 240ms steps(3, end);
+}
+
+@keyframes guide-pop {
+  0% {
+    transform: scale(0.97) translateY(3px);
+  }
+  60% {
+    transform: scale(1.02) translateY(-2px);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+  }
+}
+
+.guide-name {
+  margin: 0 0 0.2rem;
+  color: var(--red);
+  font-family: var(--pixel-font);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.guide-role {
+  margin: 0 0 0.65rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.guide-note {
+  font-size: 0.88rem;
+  line-height: 1.55;
 }
 
 .guide-title {
@@ -867,6 +1028,237 @@ a {
   line-height: 1.55;
 }
 
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+.game-card {
+  position: relative;
+  display: block;
+  padding: 1.8rem;
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  box-shadow: 6px 6px 0 var(--ink);
+  color: var(--ink);
+  text-decoration: none;
+  transition: transform 0.12s steps(2), box-shadow 0.12s steps(2);
+}
+
+.game-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 10px;
+  background: var(--tone);
+  border-bottom: 3px solid var(--ink);
+}
+
+.game-card:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+.game-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+}
+
+.game-number {
+  font-family: var(--pixel-font);
+  font-size: 1.3rem;
+  color: var(--tone);
+}
+
+.game-play {
+  font-family: var(--pixel-font);
+  font-size: 0.55rem;
+  color: var(--tone);
+}
+
+.game-name {
+  margin: 1.25rem 0 0.75rem;
+  font-family: var(--pixel-font);
+  font-size: 0.75rem;
+  line-height: 1.6;
+}
+
+.game-detail {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.game-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.game-level {
+  color: var(--tone);
+}
+
+.quiz-prompt {
+  margin: 2rem 0 1.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.quiz-choices {
+  display: grid;
+  gap: 0.85rem;
+  margin-bottom: 1.5rem;
+}
+
+.quiz-choice {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 1rem 1.1rem;
+  background: #fff;
+  border: 3px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  color: var(--ink);
+  font-family: var(--body-font);
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.1s steps(2), background 0.1s ease;
+}
+
+.quiz-choice:hover {
+  background: #fff4d6;
+  transform: translate(-1px, -1px);
+}
+
+.quiz-choice.is-selected {
+  background: #fff4d6;
+  box-shadow: 4px 4px 0 var(--ink), inset 0 0 0 3px var(--blue);
+}
+
+.quiz-choice.is-answer {
+  background: var(--green);
+  color: var(--paper);
+}
+
+.quiz-choice.is-wrong-choice {
+  background: #fdf0ec;
+  box-shadow: 4px 4px 0 var(--ink), inset 0 0 0 3px var(--red);
+}
+
+.quiz-choices.is-locked .quiz-choice {
+  cursor: default;
+  opacity: 0.92;
+}
+
+.quiz-choices.is-locked .quiz-choice:hover {
+  transform: none;
+}
+
+.oneword-clue-wrap {
+  display: grid;
+  place-items: center;
+  gap: 1rem;
+  min-height: 180px;
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: #fff8e8;
+  border: 3px dashed var(--line);
+}
+
+.answer-kind {
+  font-family: var(--pixel-font);
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
+  color: var(--red);
+}
+
+.oneword-clue {
+  margin: 0;
+  font-family: var(--pixel-font);
+  font-size: clamp(1.5rem, 5vw, 2.6rem);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.oneword-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 1rem;
+}
+
+.oneword-label {
+  grid-column: 1 / -1;
+  font-family: var(--pixel-font);
+  font-size: 0.55rem;
+  line-height: 1.6;
+}
+
+.oneword-input {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  background: #fff;
+  border: 3px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  color: var(--ink);
+  font-family: var(--body-font);
+  font-size: 1rem;
+}
+
+.oneword-input:focus {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.oneword-input:disabled {
+  background: #f2ece0;
+}
+
+.oneword-reveal {
+  margin-top: 1.25rem;
+  padding: 0.8rem 1rem;
+  background: #fff8e8;
+  border-left: 6px solid var(--blue);
+  font-family: var(--pixel-font);
+  font-size: 0.55rem;
+  line-height: 1.8;
+}
+
+.difficulty-option,
+.pixel-button,
+.word,
+.quiz-choice,
+.game-card,
+.nav-link,
+.back-link {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: none) {
+  .difficulty-option:hover,
+  .pixel-button:hover,
+  .word:hover,
+  .quiz-choice:hover,
+  .game-card:hover {
+    transform: none;
+  }
+}
+
 @media (max-width: 980px) {
   .hero {
     grid-template-columns: minmax(0, 1fr);
@@ -878,7 +1270,8 @@ a {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .quest-grid {
+  .quest-grid,
+  .game-grid {
     grid-template-columns: minmax(0, 1fr);
   }
 
@@ -887,7 +1280,8 @@ a {
     padding: 2rem;
   }
 
-  .guess-layout {
+  .guess-layout,
+  .game-layout {
     grid-template-columns: minmax(0, 1fr);
   }
 }
@@ -935,7 +1329,8 @@ a {
     padding: 2rem 1rem 3rem;
   }
 
-  .guess-page {
+  .guess-page,
+  .game-page {
     padding: 1.5rem 1rem 3rem;
   }
 
@@ -947,7 +1342,8 @@ a {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .guess-board {
+  .guess-board,
+  .game-board {
     padding: 1.25rem;
   }
 
@@ -956,7 +1352,44 @@ a {
     margin-left: 0;
   }
 
-  .guess-actions .pixel-button {
+  .guess-actions .pixel-button,
+  .game-actions .pixel-button {
     flex-basis: 100%;
+  }
+
+  .oneword-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .oneword-form .pixel-button {
+    width: 100%;
+  }
+
+  .guide-scene {
+    grid-template-columns: 80px minmax(0, 1fr);
+    min-height: 160px;
+  }
+
+  .guide-sprite {
+    width: 80px;
+    height: 120px;
+  }
+
+  .sprite-guide {
+    width: 70px;
+  }
+
+  .guide-bubble {
+    margin-bottom: 32px;
+    padding: 0.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pixel-bird,
+  .bird-sprite,
+  .party-member .sprite,
+  .guide-bubble.is-popping {
+    animation: none;
   }
 }
